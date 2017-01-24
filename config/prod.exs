@@ -18,7 +18,7 @@ config :podcasts_api, PodcastsApi.Endpoint,
   cache_static_manifest: "priv/static/manifest.json"
 
 config :podcasts_api, PodcastsApi.Repo,
-  adapter: Ecto.Adapters.Postgres
+  adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DATABASE_URL"),
   pool_size: 20
 

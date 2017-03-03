@@ -14,13 +14,25 @@ defmodule PodcastsApi.ErrorViewTest do
       }
   end
 
-  # test "render 500.json" do
-  #   assert render(PodcastsApi.ErrorView, "500.json", []) ==
-  #          %{errors: %{code: "500"}}
-  # end
+  test "render 500.json" do
+    assert render(PodcastsApi.ErrorView, "500.json", []) ==
+      %{
+        "errors" => [%{
+          code: 500,
+          title: "Internal Server Error",
+        }],
+        "jsonapi" => %{"version" => "1.0"}
+      }
+  end
 
-  # test "render any other" do
-  #   assert render(PodcastsApi.ErrorView, "505.json", []) ==
-  #          %{errors: %{code: "500"}}
-  # end
+  test "render any other" do
+    assert render(PodcastsApi.ErrorView, "403.json", []) ==
+      %{
+        "errors" => [%{
+          code: 403,
+          title: "Forbidden",
+        }],
+        "jsonapi" => %{"version" => "1.0"}
+      }
+  end
 end

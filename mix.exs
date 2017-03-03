@@ -19,7 +19,7 @@ defmodule PodcastsApi.Mixfile do
   def application do
     [mod: {PodcastsApi, []},
      applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin]]
+                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :sweet_xml]]
   end
 
   # Specifies which paths to compile per environment.
@@ -40,6 +40,8 @@ defmodule PodcastsApi.Mixfile do
      {:comeonin, "~> 3.0"},
      {:mix_test_watch, "~> 0.2", only: :dev},
      {:ja_serializer, "~> 0.11.2"},
+     {:httpoison, "~> 0.10.0"},
+     {:sweet_xml, "~> 0.6.4"},
      {:cowboy, "~> 1.0"}]
   end
 

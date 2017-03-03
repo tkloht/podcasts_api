@@ -9,6 +9,6 @@ defmodule PodcastsApi.UserController do
     |> Guardian.Plug.current_resource
 
     conn
-    |> render(PodcastsApi.UserView, "show.json", user: user)
+    |> render(PodcastsApi.UserView, "show.json-api", data: user)
   end
 end

@@ -19,7 +19,7 @@ defmodule PodcastsApi.RegistrationController do
       {:ok, user} ->
         conn
         |> put_status(:created)
-        |> render(PodcastsApi.UserView, "show.json", user: user)
+        |> render(PodcastsApi.UserView, "show.json-api", data: user)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

@@ -4,15 +4,15 @@ defmodule PodcastsApi.ErrorViewTest do
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  # test "renders 404.json" do
-  #   assert render(PodcastsApi.ErrorView, "404.json", []) ==
-  #     %{errors: [%{
-  #         code: "404",
-  #         title: "Internal Server Error"
-  #       }],
-  #       jsonapi: %{version: "1.0"}
-  #     }
-  # end
+  test "renders 404.json" do
+    assert render(PodcastsApi.ErrorView, "404.json", []) ==
+      %{"errors" => [%{
+          code: 404,
+          title: "Not found"
+        }],
+        "jsonapi" => %{"version" => "1.0"}
+      }
+  end
 
   # test "render 500.json" do
   #   assert render(PodcastsApi.ErrorView, "500.json", []) ==

@@ -8,7 +8,15 @@ defmodule PodcastsApi.FeedView do
     %{
       title: "Not found",
       code: 404,
-      reason: reason,
+      reason: reason
+    }
+    |> JaSerializer.ErrorSerializer.format
+  end
+
+  def render("no-xml-error.json-api", reason) do
+    %{
+      title: "No xml",
+      code: 422,
     }
     |> JaSerializer.ErrorSerializer.format
   end

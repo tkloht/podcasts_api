@@ -52,7 +52,16 @@ defmodule PodcastsApi.FeedControllerTest do
       }
     end
 
-    test "should show no-xml-error if document at supplied url is not valid xml"
+    test "should show no-xml-error if document at supplied url is not valid xml" , %{conn: conn} do
+      conn = post(conn, feed_path(conn, :create), build_data("https://freakshow.fm"))
+      %{"errors" => [%{
+          "code" => code,
+          "title" => title
+        }]
+      } = json_response(conn, 422)
+      assert code == 422
+      assert title == "No xml"
+    end
     
     test "should show no-feed-error if document at supplied url is not a valid feed"
 

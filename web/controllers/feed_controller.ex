@@ -50,9 +50,8 @@ defmodule PodcastsApi.FeedController do
     end
   end
 
-  def handle_feed(conn, feed_body, source_url) do
-    {:ok, parsed} = parseFeed(source_url, feed_body)
-    changeset = Feed.changeset %Feed{}, parsed
+  def insert_feed(conn, parsed_feed) do
+    changeset = Feed.changeset %Feed{}, parsed_feed
     case Repo.insert changeset do
       {:ok, feed} ->
         conn
@@ -62,7 +61,17 @@ defmodule PodcastsApi.FeedController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
-    end  
+    end 
+  end
+
+  def handle_feed(conn, feed_body, source_url) do
+    case parseFeed(source_url, feed_body) do
+      {:ok, parsed} -> conn |> insert_feed(parsed)
+      {:error, :no_xml} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.FeedView, "no-xml-error.json-api")
+    end
   end
 
   def create(conn, %{"data" => %{
@@ -79,7 +88,8 @@ defmodule PodcastsApi.FeedController do
         |> put_status(:not_found)
         |> render(PodcastsApi.FeedView,
           "error.json-api",
-          reason: "not found")
+          reason: "not found",
+          )
       {:error, %HTTPoison.Error{reason: :nxdomain}} ->
         conn
         |> put_status(:not_found)

@@ -4,4 +4,13 @@ defmodule PodcastsApi.FeedView do
 
   attributes [:source_url, :title]
 
+  def render("error.json-api", reason) do
+    %{
+      title: "Not found",
+      code: 404,
+      reason: reason,
+    }
+    |> JaSerializer.ErrorSerializer.format
+  end
+
 end

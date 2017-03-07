@@ -41,19 +41,30 @@ defmodule PodcastsApi.FeedControllerTest do
 
   describe "create" do
 
-    @data %{
-      "data" => %{
-        "type" => "feeds",
-        "attributes" => %{
-          "url" => "http://invalid_url.com"
+    defp build_data (url) do
+      %{
+        "data" => %{
+          "type" => "feeds",
+          "attributes" => %{
+            "url" => url
+          }
         }
       }
-    }
+    end
 
-    test "show not-found-error on create if attributes.url is not found", %{conn: conn} do
+    test "should show no-xml-error if document at supplied url is not valid xml"
+    
+    test "should show no-feed-error if document at supplied url is not a valid feed"
+
+    test "should show not-found-error if attributes.url is not found", %{conn: conn} do
       create_test_feed
-      conn = put conn, feed_path(conn, :create), %{data: @data}
+      conn = post conn, feed_path(conn, :create), build_data("http://invalid_url.com")
       assert json_response(conn, 404)
+    end
+
+    test "should return status 201 (created) if attributes.url is valid feed", %{conn: conn} do
+      conn = post conn, feed_path(conn, :create), build_data("https://feeds.metaebene.me/freakshow/m4a")
+      assert json_response(conn, 201)
     end
 
   end

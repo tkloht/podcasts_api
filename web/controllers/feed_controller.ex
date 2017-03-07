@@ -50,29 +50,40 @@ defmodule PodcastsApi.FeedController do
     end
   end
 
+  def handle_feed(conn, feed_body, source_url) do
+    {:ok, parsed} = parseFeed(source_url, feed_body)
+    changeset = Feed.changeset %Feed{}, parsed
+    case Repo.insert changeset do
+      {:ok, feed} ->
+        conn
+        |> put_status(:created)
+        |> render(PodcastsApi.FeedView, "show.json-api", data: feed)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
+    end  
+  end
+
   def create(conn, %{"data" => %{
     "type" => "feeds",
     "attributes" => %{
       "url" => source_url
     }
   }}) do
-
     case HTTPoison.get(source_url, [], [ ssl: [{:versions, [:'tlsv1.2']}] ]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        changeset = Feed.changeset %Feed{}, parseFeed(source_url, body)
-        case Repo.insert changeset do
-          {:ok, feed} ->
-            conn
-            |> put_status(:created)
-            |> render(PodcastsApi.FeedView, "show.json-api", feed: feed)
-          {:error, changeset} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
-        end
+        conn |> handle_feed(body, source_url)
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         conn
-        |> render(PodcastsApi.ChangesetView,
+        |> put_status(:not_found)
+        |> render(PodcastsApi.FeedView,
+          "error.json-api",
+          reason: "not found")
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        conn
+        |> put_status(:not_found)
+        |> render(PodcastsApi.FeedView,
           "error.json-api",
           reason: "not found")
       {:error, %HTTPoison.Error{reason: reason}} ->

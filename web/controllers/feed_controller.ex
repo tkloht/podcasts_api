@@ -71,6 +71,10 @@ defmodule PodcastsApi.FeedController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.FeedView, "no-xml-error.json-api")
+      {:error, :no_feed} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.FeedView, "no-feed-error.json-api")
     end
   end
 

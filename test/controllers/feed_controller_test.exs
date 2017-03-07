@@ -63,7 +63,16 @@ defmodule PodcastsApi.FeedControllerTest do
       assert title == "No xml"
     end
     
-    test "should show no-feed-error if document at supplied url is not a valid feed"
+    test "should show no-feed-error if document at supplied url is not a valid feed" , %{conn: conn} do
+      conn = post(conn, feed_path(conn, :create), build_data("https://www.w3schools.com/xml/note.xml"))
+      %{"errors" => [%{
+          "code" => code,
+          "title" => title
+        }]
+      } = json_response(conn, 422)
+      assert code == 422
+      assert title == "No feed"
+    end
 
     test "should show not-found-error if attributes.url is not found", %{conn: conn} do
       create_test_feed

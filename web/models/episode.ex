@@ -2,9 +2,7 @@ defmodule PodcastsApi.Episode do
   use PodcastsApi.Web, :model
   import Ecto.Query
 
-  schema "comments" do
-    field :content, :string
-
+  schema "episodes" do
     field :title, :string
     field :subtitle, :string
     field :link, :string
@@ -15,12 +13,12 @@ defmodule PodcastsApi.Episode do
     field :shownotes, :string
     field :enclosure, :string
     
-    belongs_to :post, PodcastsApi.Feed
+    belongs_to :feed, PodcastsApi.Feed
 
     timestamps
   end
 
-  @required_fields ~w(title link pubDate enclosure post_id)
+  @required_fields ~w(title link pubDate enclosure feed_id)
   @optional_fields ~w()
 
   @doc """
@@ -29,7 +27,7 @@ defmodule PodcastsApi.Episode do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required([:title, :link, :pubDate, :enclosure, :post_id])
+    |> validate_required([:title, :link, :pubDate, :enclosure, :feed_id])
   end
 
 end

@@ -8,7 +8,7 @@ defmodule PodcastsApi.EpisodeTest do
     link: "http://test.com/feed/item",
     pubDate: Timex.parse!("Thu, 23 Feb 2017 02:11:53 +0000", "{RFC822}"),
     enclosure: "http://test.com/feed/item.mp3",
-    post_id: 1
+    feed_id: 1
   }
   @invalid_attrs %{}
 
@@ -29,6 +29,13 @@ defmodule PodcastsApi.EpisodeTest do
     create_test_feed
     changeset = Episode.changeset(%Episode{}, @valid_attrs)
     assert changeset.valid?
+  end
+
+  test "belongs to a feed" do
+    feed = Repo.insert!(%PodcastsApi.Feed{})
+    episode = Repo.insert!(%Episode{feed_id: feed.id})
+    episode = Episode |> Repo.get(episode.id) |> Repo.preload(:feed)
+    assert feed == episode.feed
   end
 
 end

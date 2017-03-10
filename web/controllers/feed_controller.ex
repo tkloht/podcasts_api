@@ -40,7 +40,19 @@ defmodule PodcastsApi.FeedController do
             title: ~x"//channel/title/text()"S,
             description: ~x"//channel/description/text()"S,
             link: ~x"//channel/link/text()"S,
-            image_url: ~x"//channel/image/url/text()"S
+            image_url: ~x"//channel/image/url/text()"S,
+            episodes: [
+              ~x"//channel/item"l,
+              title: ~x"./title/text()"S,
+              subtitle: ~x"./itunes:subtitle/text()"S,
+              link: ~x"./link/text()"S,
+              pubDate: ~x"./pubDate/text()"S,
+              guid: ~x"./guid/text()"S,
+              description: ~x"./itunes:summary/text()"S,
+              duration: ~x"./itunes:duration/text()"S,
+              shownotes: ~x"/content:encoded/text()"S,
+              enclosure: ~x"./enclosure/text()"S
+              ]
           )
         |> Map.put(:source_url, source_url)
         
@@ -48,6 +60,30 @@ defmodule PodcastsApi.FeedController do
       {:error, :no_xml} -> {:error, :no_xml}
       {:error, :no_feed} -> {:error, :no_feed}
     end
+  end
+
+  
+
+  def parse_episodes() do
+    "hey"
+  end
+
+  def parse_episode(node) do
+    node |> xmap(
+      title: ~x"//title"S,
+      subtitle: ~x"/itunes:subtitle/"S,
+      link: ~x"/link/"S,
+      pubDate: ~x"/pubDate/"S,
+      guid: ~x"/guid/"S,
+      description: ~x"/itunes:summary/"S,
+      duration: ~x"/itunes:duration/"S,
+      shownotes: ~x"/content:encoded/"S,
+      enclosure: ~x"/enclosure/"S
+    )
+  end
+
+  def parse_pubdate(date_string) do
+    Timex.parse!(date_string, "{RDC822}")
   end
 
   def insert_feed(conn, parsed_feed) do

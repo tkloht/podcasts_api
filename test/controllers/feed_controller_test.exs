@@ -1,5 +1,6 @@
 defmodule PodcastsApi.FeedControllerTest do
   use PodcastsApi.ConnCase
+  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   alias PodcastsApi.Feed
   import PodcastsApi.FeedController
@@ -20,6 +21,10 @@ defmodule PodcastsApi.FeedControllerTest do
     app_root = Application.app_dir(:podcasts_api, "priv")
     path = Path.relative_to_cwd(Path.join([app_root, "fixtures", fixture_name]))
     File.read! path
+  end
+
+  setup_all do
+    HTTPoison.start
   end
 
   setup %{conn: conn} do
@@ -59,36 +64,64 @@ defmodule PodcastsApi.FeedControllerTest do
     end
 
     test "should show no-xml-error if document at supplied url is not valid xml" , %{conn: conn} do
-      conn = post(conn, feed_path(conn, :create), build_data("https://freakshow.fm"))
-      %{"errors" => [%{
-          "code" => code,
-          "title" => title
-        }]
-      } = json_response(conn, 422)
-      assert code == 422
-      assert title == "No xml"
+      use_cassette "example_no_xml" do
+        conn = post(conn, feed_path(conn, :create), build_data("https://freakshow.fm"))
+        %{"errors" => [%{
+            "code" => code,
+            "title" => title
+          }]
+        } = json_response(conn, 422)
+        assert code == 422
+        assert title == "No xml"
+      end
     end
     
     test "should show no-feed-error if document at supplied url is not a valid feed" , %{conn: conn} do
-      conn = post(conn, feed_path(conn, :create), build_data("https://www.w3schools.com/xml/note.xml"))
-      %{"errors" => [%{
-          "code" => code,
-          "title" => title
-        }]
-      } = json_response(conn, 422)
-      assert code == 422
-      assert title == "No feed"
+      use_cassette "no_feed" do
+        conn = post(conn, feed_path(conn, :create), build_data("https://www.w3schools.com/xml/note.xml"))
+        %{"errors" => [%{
+            "code" => code,
+            "title" => title
+          }]
+        } = json_response(conn, 422)
+        assert code == 422
+        assert title == "No feed"
+      end
     end
 
-    test "should show not-found-error if attributes.url is not found", %{conn: conn} do
-      create_test_feed
-      conn = post conn, feed_path(conn, :create), build_data("http://invalid_url.com")
-      assert json_response(conn, 404)
-    end
+    # test "should show not-found-error if attributes.url is not found", %{conn: conn} do
+    #   create_test_feed
+    #   conn = post conn, feed_path(conn, :create), build_data("http://invalid_url.com")
+    #   assert json_response(conn, 404)
+    # end
 
     test "should return status 201 (created) if attributes.url is valid feed", %{conn: conn} do
-      conn = post conn, feed_path(conn, :create), build_data("https://feeds.metaebene.me/freakshow/m4a")
-      assert json_response(conn, 201)
+      use_cassette "valid_freakshow" do
+        conn = post conn, feed_path(conn, :create), build_data("https://feeds.metaebene.me/freakshow/m4a")
+        assert json_response(conn, 201)
+      end
+    end
+
+    test "should insert a feed into the db" , %{conn: conn} do
+      use_cassette "valid_freakshow" do
+        conn = post conn, feed_path(conn, :create), build_data("https://feeds.metaebene.me/freakshow/m4a")
+        assert json_response(conn, 201)
+
+        assert Repo.get_by(Feed, %{source_url: "https://feeds.metaebene.me/freakshow/m4a"})
+      end
+    end
+
+    test "should insert episodes into the db", %{conn: conn} do
+      use_cassette "valid_freakshow" do
+        conn = post conn, feed_path(conn, :create), build_data("https://feeds.metaebene.me/freakshow/m4a")
+        assert json_response(conn, 201)
+
+        feed = Feed
+        |> Repo.get_by(Feed, %{source_url: "https://feeds.metaebene.me/freakshow/m4a"})
+        |> Repo.preload(:episodes)
+        refute feed.episodes == nil
+        refute Enum.empty(feed.episodes)
+      end
     end
 
   end

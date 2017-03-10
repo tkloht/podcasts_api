@@ -46,7 +46,7 @@ defmodule PodcastsApi.FeedController do
               title: ~x"./title/text()"S,
               subtitle: ~x"./itunes:subtitle/text()"S,
               link: ~x"./link/text()"S,
-              pubDate: ~x"./pubDate/text()"S,
+              pubDate: ~x"./pubDate/text()"S |> transform_by(fn date_string -> parse_pubdate(date_string) end),
               guid: ~x"./guid/text()"S,
               description: ~x"./itunes:summary/text()"S,
               duration: ~x"./itunes:duration/text()"S,
@@ -62,28 +62,9 @@ defmodule PodcastsApi.FeedController do
     end
   end
 
-  
-
-  def parse_episodes() do
-    "hey"
-  end
-
-  def parse_episode(node) do
-    node |> xmap(
-      title: ~x"//title"S,
-      subtitle: ~x"/itunes:subtitle/"S,
-      link: ~x"/link/"S,
-      pubDate: ~x"/pubDate/"S,
-      guid: ~x"/guid/"S,
-      description: ~x"/itunes:summary/"S,
-      duration: ~x"/itunes:duration/"S,
-      shownotes: ~x"/content:encoded/"S,
-      enclosure: ~x"/enclosure/"S
-    )
-  end
-
   def parse_pubdate(date_string) do
-    Timex.parse!(date_string, "{RDC822}")
+    {:ok, parsed} = Timex.parse(date_string, "{RFC822}")
+    parsed
   end
 
   def insert_feed(conn, parsed_feed) do
@@ -94,6 +75,7 @@ defmodule PodcastsApi.FeedController do
         |> put_status(:created)
         |> render(PodcastsApi.FeedView, "show.json-api", data: feed)
       {:error, changeset} ->
+        IO.puts(">>>>> unable to insert changeset: " <> changeset )
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)

@@ -8,6 +8,8 @@ defmodule PodcastsApi.Feed do
     field :link, :string
     field :image_url, :string
 
+    has_many :episodes, PodcastsApi.Episode
+
     timestamps()
   end
 
@@ -20,6 +22,7 @@ defmodule PodcastsApi.Feed do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields ++ @optional_fields)
+    |> cast_assoc(:episodes, params.episodes)
     |> validate_required([:source_url])
   end
 end

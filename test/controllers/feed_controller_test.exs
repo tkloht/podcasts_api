@@ -117,17 +117,17 @@ defmodule PodcastsApi.FeedControllerTest do
         assert json_response(conn, 201)
 
         feed = Feed
-        |> Repo.get_by(Feed, %{source_url: "https://feeds.metaebene.me/freakshow/m4a"})
+        |> Repo.get_by(%{source_url: "https://feeds.metaebene.me/freakshow/m4a"})
         |> Repo.preload(:episodes)
         refute feed.episodes == nil
-        refute Enum.empty(feed.episodes)
+        refute Enum.empty?(feed.episodes)
       end
     end
 
   end
 
   describe "parseFeed" do
-    test "parses valid feed head correclty correctly" do
+    test "parses valid feed head correctly" do
       source_url = "test"
       feed_body = get_fixture "valid_freakshow.xml"
       {:ok, parsed} = parseFeed(source_url, feed_body)

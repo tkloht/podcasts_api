@@ -124,6 +124,23 @@ defmodule PodcastsApi.FeedControllerTest do
       end
     end
 
+    test "should return feed with episodes after adding valid feed", %{conn: conn} do
+      use_cassette "valid_freakshow" do
+      conn = post conn, feed_path(conn, :create), build_data("https://feeds.metaebene.me/freakshow/m4a")
+      %{"data" => %{
+        "attributes" => %{
+          "title" => title,
+        },
+        "relationships" => %{
+          "episodes" => episodes,
+        }
+      }} =  json_response(conn, 201)
+      refute title == nil
+      refute episodes == nil
+      refute Enum.empty? episodes
+      end      
+    end
+
   end
 
   describe "parseFeed" do

@@ -9,7 +9,6 @@ defmodule PodcastsApi.FeedController do
 
   def index(conn, _params) do
     feeds = Repo.all(PodcastsApi.Feed)
-    Logger.info "feeds: "
     conn
     |> render("index.json-api", data: feeds)
   end
@@ -73,7 +72,12 @@ defmodule PodcastsApi.FeedController do
       {:ok, feed} ->
         conn
         |> put_status(:created)
-        |> render(PodcastsApi.FeedView, "show.json-api", data: feed)
+        |> render(
+            PodcastsApi.FeedView,
+            "show.json-api",
+            data: feed,
+            opts: [include: "episodes"]
+          )
       {:error, changeset} ->
         IO.puts(">>>>> unable to insert changeset: " <> changeset )
         conn

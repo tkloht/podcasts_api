@@ -2,7 +2,18 @@ defmodule PodcastsApi.FeedView do
   use PodcastsApi.Web, :view
   use JaSerializer.PhoenixView
 
-  attributes [:source_url, :title]
+  attributes [
+    :source_url,
+    :title,
+    :description,
+    :link,
+    :image_url,
+  ]
+
+  has_many :episodes,
+    serializer: PodcastsApi.EpisodeView,
+    include: false,
+    identifiers: :when_included
 
   def render("error.json-api", reason) do
     %{

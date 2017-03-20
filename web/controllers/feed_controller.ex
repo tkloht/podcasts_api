@@ -13,6 +13,19 @@ defmodule PodcastsApi.FeedController do
     |> render("index.json-api", data: feeds)
   end
 
+  def show(conn, %{"id" => id}) do
+    feed = Repo.get_by(Feed, %{id: id})
+    |> Repo.preload(:episodes)
+
+    conn
+    |> render(
+        PodcastsApi.FeedView,
+        "show.json-api",
+        data: feed,
+        opts: [include: "episodes"]
+      )
+  end
+
   def is_feed(feedBody) do
     try do
       case feedBody |> xmap(
@@ -126,8 +139,7 @@ defmodule PodcastsApi.FeedController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", reason: reason)
-
     end
-
   end
+
 end

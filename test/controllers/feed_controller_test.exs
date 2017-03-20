@@ -17,6 +17,23 @@ defmodule PodcastsApi.FeedControllerTest do
     end
   end
 
+  def create_test_feed_with_episodes() do
+    Enum.each ["test1", "test2", "test3"], fn name -> 
+      Repo.insert! %Feed{
+        source_url: "http://feeds.metaebene.me/freakshow/m4a",
+        title: "freakshow",
+        description: name,
+        link: "test",
+        image_url: "test",
+        episodes: [%{
+          title: "test_episode", 
+          link: "http://test.com",
+          pubDate: Timex.parse!("Thu, 23 Feb 2017 02:11:53 +0000", "{RFC822}"),
+        }]
+      }
+    end
+  end
+
   def get_fixture(fixture_name) do
     app_root = Application.app_dir(:podcasts_api, "priv")
     path = Path.relative_to_cwd(Path.join([app_root, "fixtures", fixture_name]))
@@ -47,6 +64,38 @@ defmodule PodcastsApi.FeedControllerTest do
       create_test_feed
       conn = get conn, feed_path(conn, :index)
       assert Enum.count(json_response(conn, 200)["data"]) == 3
+    end
+  end
+
+  describe "show" do
+    test "show feed if available", %{conn: conn} do
+      create_test_feed
+      feed = Repo.get_by(Feed, %{description: "test1"})
+      conn = get conn, feed_path(conn, :show, feed.id)
+      %{
+        "attributes" => %{
+          "description" => description
+        },
+      } = json_response(conn, 200)["data"]
+      assert description == "test1"
+    end
+
+    test "show feed with episodes if feed has episodes", %{conn: conn} do
+      create_test_feed_with_episodes
+      feed = Repo.get_by(Feed, %{description: "test1"})
+      conn = get conn, feed_path(conn, :show, feed.id)
+
+      %{
+        "attributes" => %{
+          "description" => description
+        },
+        "relationships" => %{
+          "episodes" => episodes
+        }
+      } = json_response(conn, 200)["data"]
+      assert description == "test1"
+      assert episodes != nil
+      refute Enum.empty? episodes
     end
   end
 

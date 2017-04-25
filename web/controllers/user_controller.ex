@@ -11,4 +11,10 @@ defmodule PodcastsApi.UserController do
     conn
     |> render(PodcastsApi.UserView, "show.json-api", data: user)
   end
+
+  def index(conn, _) do
+    users = Repo.all(PodcastsApi.User)
+    conn
+    |> render("index.json-api", data: users)
+  end
 end

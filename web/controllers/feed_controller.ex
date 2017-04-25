@@ -1,11 +1,12 @@
 defmodule PodcastsApi.FeedController do
   use PodcastsApi.Web, :controller
 
+  import PodcastsApi.ParseFeed
+
   alias PodcastsApi.Feed
   plug Guardian.Plug.EnsureAuthenticated, handler: PodcastsApi.AuthErrorHandler
 
   require Logger
-  import SweetXml
 
   def index(conn, _params) do
     feeds = Repo.all(PodcastsApi.Feed)
@@ -19,70 +20,53 @@ defmodule PodcastsApi.FeedController do
 
     conn
     |> render(
-        PodcastsApi.FeedView,
-        "show.json-api",
-        data: feed,
-        opts: [include: "episodes"]
-      )
+      PodcastsApi.FeedView,
+      "show.json-api",
+      data: feed,
+      opts: [include: "episodes"]
+    )
   end
 
-  def is_feed(feedBody) do
-    try do
-      case feedBody |> xmap(
-        title: ~x"/rss/channel/title",
-        description: ~x"/rss/channel/description",
-        link: ~x"/rss/channel/link",
-      ) do
-        %{title: nil} -> {:error, :no_feed}    
-        %{description: nil} -> {:error, :no_feed}    
-        %{link: nil} -> {:error, :no_feed}    
-        _ -> {:ok}
-      end
-    catch
-      :exit, _ -> {:error, :no_xml}
-    end
-  end
+  def update_feed(conn, parsed_feed, id) do
+    IO.puts "in update feed..."
+    IO.inspect parsed_feed
+    feed_with_id = insert_feed_id(parsed_feed, id)
+    parsed_feed = parsed_feed
+      |> insert_feed_id(id)
+      |> insert_episode_ids(get_episodes_by_feed_id(id))
+    IO.puts "with id: "
+    IO.inspect Map.delete(feed_with_id, :episodes)
 
-  def parseFeed(source_url, feedBody) do
-
-    case is_feed feedBody do
-      {:ok} ->
-        parsed = feedBody
-        |> xmap(
-            title: ~x"//channel/title/text()"S,
-            description: ~x"//channel/description/text()"S,
-            link: ~x"//channel/link/text()"S,
-            image_url: ~x"//channel/image/url/text()"S,
-            episodes: [
-              ~x"//channel/item"l,
-              title: ~x"./title/text()"S,
-              subtitle: ~x"./itunes:subtitle/text()"S,
-              link: ~x"./link/text()"S,
-              pubDate: ~x"./pubDate/text()"S |> transform_by(fn date_string -> parse_pubdate(date_string) end),
-              guid: ~x"./guid/text()"S,
-              description: ~x"./itunes:summary/text()"S,
-              duration: ~x"./itunes:duration/text()"S,
-              shownotes: ~x"/content:encoded/text()"S,
-              enclosure: ~x"./enclosure/text()"S
-              ]
+    feed = Repo.get!(Feed, id) |> Repo.preload(:episodes)
+    changeset = Feed.changeset(feed, parsed_feed)
+    case Repo.update changeset do
+      {:ok, feed} ->
+        IO.puts "updated feed..."
+        IO.inspect feed
+        conn
+        |> put_status(:created)
+        |> render(
+            PodcastsApi.FeedView,
+            "show.json-api",
+            data: feed,
+            opts: [include: "episodes"]
           )
-        |> Map.put(:source_url, source_url)
-        
-        {:ok, parsed }
-      {:error, :no_xml} -> {:error, :no_xml}
-      {:error, :no_feed} -> {:error, :no_feed}
-    end
-  end
-
-  def parse_pubdate(date_string) do
-    {:ok, parsed} = Timex.parse(date_string, "{RFC822}")
-    parsed
+      {:error, changeset} ->
+        IO.puts(">>>>> unable to insert changeset: " <> changeset )
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
+    end 
   end
 
   def insert_feed(conn, parsed_feed) do
+    IO.puts "in insert feed..."
+    IO.inspect parsed_feed
     changeset = Feed.changeset %Feed{}, parsed_feed
     case Repo.insert changeset do
       {:ok, feed} ->
+        IO.puts "inserted feed..."
+        IO.inspect feed
         conn
         |> put_status(:created)
         |> render(
@@ -113,6 +97,55 @@ defmodule PodcastsApi.FeedController do
     end
   end
 
+  def handle_feed_update(conn, feed_body, source_url, id) do
+    case parseFeed(source_url, feed_body) do
+      {:ok, parsed} -> conn |> update_feed(parsed, id)
+      {:error, :no_xml} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.FeedView, "no-xml-error.json-api")
+      {:error, :no_feed} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.FeedView, "no-feed-error.json-api")
+    end
+  end
+
+  def update(conn, %{"data" => %{
+    "type" => "feeds",
+    "attributes" => %{
+      "id" => id
+    }
+  }}) do
+
+    IO.puts("in update... ")
+    case handleUdpateFeed(conn, id) do
+      {:ok, feed} ->
+        conn
+        |> put_status(:updated)
+        |> render(
+            PodcastsApi.FeedView,
+            "show.json-api",
+            data: feed,
+            opts: [include: "episodes"]
+          )
+    end
+  end
+
+  def handleUdpateFeed(conn, feed_id) do
+    feed = Repo.get_by(Feed, %{id: feed_id})
+    IO.puts("updated feed: ")
+    case HTTPoison.get(feed.source_url, [], [ ssl: [{:versions, [:'tlsv1.2']}] ]) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        IO.puts "received a feed..."
+        conn |> handle_feed_update(body, feed.source_url, feed_id)
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(PodcastsApi.ChangesetView, "error.json-api", reason: reason)
+    end
+  end
+
   def create(conn, %{"data" => %{
     "type" => "feeds",
     "attributes" => %{
@@ -140,6 +173,15 @@ defmodule PodcastsApi.FeedController do
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", reason: reason)
     end
+  end
+
+  def get_episodes_by_feed_id(feed_id) do
+    %{:episodes => episodes} = Repo.get(PodcastsApi.Feed, feed_id)
+      |> Repo.preload(:episodes)
+    IO.puts "get episodes by feed id: "
+    IO.inspect(episodes)
+
+    episodes
   end
 
 end

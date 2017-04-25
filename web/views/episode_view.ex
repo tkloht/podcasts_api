@@ -12,6 +12,7 @@ defmodule PodcastsApi.EpisodeView do
     :duration,
     :shownotes,
     :enclosure,
+    :updated_at,
   ]
 
 end

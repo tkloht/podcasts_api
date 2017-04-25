@@ -8,7 +8,8 @@ defmodule PodcastsApi.Feed do
     field :link, :string
     field :image_url, :string
 
-    has_many :episodes, PodcastsApi.Episode
+    has_many :episodes, PodcastsApi.Episode, on_replace: :delete
+    has_many :subscriptions, PodcastsApi.Subscription
 
     timestamps()
   end

@@ -1,6 +1,5 @@
 defmodule PodcastsApi.Episode do
   use PodcastsApi.Web, :model
-  import Ecto.Query
 
   schema "episodes" do
     field :title, :string

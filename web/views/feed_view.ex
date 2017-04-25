@@ -8,6 +8,7 @@ defmodule PodcastsApi.FeedView do
     :description,
     :link,
     :image_url,
+    :updated_at,
   ]
 
   has_many :episodes,

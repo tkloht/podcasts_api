@@ -21,8 +21,13 @@ defmodule PodcastsApi.Router do
   scope "/api", PodcastsApi do
     pipe_through :api_auth
 
-    get "/user/current", UserController, :current
+    get "/users/current", UserController, :current
+    get "/users", UserController, :index
+    post "/update_feed", FeedController, :update
     resources "feeds", FeedController, except: [:new, :edit]
+
+
+    resources "episodes", EpisodeController, except: [:new, :edit]
   end
 
 end

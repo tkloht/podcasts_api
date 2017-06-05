@@ -26,4 +26,11 @@ defmodule PodcastsApi.Feed do
     |> cast_assoc(:episodes, params.episodes)
     |> validate_required([:source_url])
   end
+
+  def search(query, search_term) do
+    from(feed in query,
+    where: fragment("? % ?", feed.title, ^search_term),
+    order_by: fragment("similarity(?, ?) DESC", feed.title, ^search_term))
+  end
+
 end

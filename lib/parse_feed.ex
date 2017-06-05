@@ -40,14 +40,17 @@ defmodule PodcastsApi.ParseFeed do
               link: ~x"./link/text()"S,
               pubDate: ~x"./pubDate/text()"S |> transform_by(fn date_string -> parse_pubdate(date_string) end),
               guid: ~x"./guid/text()"S,
-              description: ~x"./itunes:summary/text()"S,
+              description: ~x"./description/text()"S,
+              itunes_summary: ~x"./itunes:summary/text()"S,
+              content_encoded: ~x"./content:encoded/text()"S,
               duration: ~x"./itunes:duration/text()"S,
               shownotes: ~x"/content:encoded/text()"S,
-              enclosure: ~x"./enclosure/text()"S
+              enclosure: ~x"./enclosure/@url"S
               ]
           )
         |> Map.put(:source_url, source_url)
         IO.puts "feed is parsed..."
+        IO.inspect(parsed)
         {:ok, parsed }
       {:error, :no_xml} -> {:error, :no_xml}
       {:error, :no_feed} -> {:error, :no_feed}

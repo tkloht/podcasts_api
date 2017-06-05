@@ -13,6 +13,8 @@ defmodule PodcastsApi.EpisodeView do
     :shownotes,
     :enclosure,
     :updated_at,
+    :content_encoded,
+    :itunes_summary,
   ]
 
 end

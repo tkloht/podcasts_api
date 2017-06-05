@@ -8,7 +8,9 @@ defmodule PodcastsApi.Episode do
     field :pubDate, Timex.Ecto.DateTimeWithTimezone
     field :guid, :string
     field :description, :string
-    field :duration, :integer
+    field :itunes_summary, :string
+    field :content_encoded, :string
+    field :duration, :string
     field :shownotes, :string
     field :enclosure, :string
     
@@ -18,7 +20,7 @@ defmodule PodcastsApi.Episode do
   end
 
   @required_fields ~w(title link pubDate feed_id)
-  @optional_fields ~w(enclosure)
+  @optional_fields ~w(enclosure guid duration description itunes_summary content_encoded)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

@@ -29,20 +29,16 @@ defmodule PodcastsApi.FeedController do
 
   def update_feed(conn, parsed_feed, id) do
     IO.puts "in update feed..."
-    IO.inspect parsed_feed
+    # IO.inspect parsed_feed
     feed_with_id = insert_feed_id(parsed_feed, id)
     parsed_feed = parsed_feed
       |> insert_feed_id(id)
       |> insert_episode_ids(get_episodes_by_feed_id(id))
-    IO.puts "with id: "
-    IO.inspect Map.delete(feed_with_id, :episodes)
 
     feed = Repo.get!(Feed, id) |> Repo.preload(:episodes)
     changeset = Feed.changeset(feed, parsed_feed)
     case Repo.update changeset do
       {:ok, feed} ->
-        IO.puts "updated feed..."
-        IO.inspect feed
         conn
         |> put_status(:created)
         |> render(
@@ -52,7 +48,8 @@ defmodule PodcastsApi.FeedController do
             opts: [include: "episodes"]
           )
       {:error, changeset} ->
-        IO.puts(">>>>> unable to insert changeset: " <> changeset )
+        IO.puts(">>>>> unable to insert changeset: ")
+        IO.inspect(changeset )
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
@@ -76,7 +73,8 @@ defmodule PodcastsApi.FeedController do
             opts: [include: "episodes"]
           )
       {:error, changeset} ->
-        IO.puts(">>>>> unable to insert changeset: " <> changeset )
+        IO.puts(">>>>> unable to insert changeset: " )
+        IO.inspect(changeset )
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
@@ -178,8 +176,8 @@ defmodule PodcastsApi.FeedController do
   def get_episodes_by_feed_id(feed_id) do
     %{:episodes => episodes} = Repo.get(PodcastsApi.Feed, feed_id)
       |> Repo.preload(:episodes)
-    IO.puts "get episodes by feed id: "
-    IO.inspect(episodes)
+    # IO.puts "get episodes by feed id: "
+    # IO.inspect(episodes)
 
     episodes
   end

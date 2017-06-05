@@ -1,7 +1,6 @@
 defmodule PodcastsApi.UserController do
   use PodcastsApi.Web, :controller
 
-  alias PodcastsApi.User
   plug Guardian.Plug.EnsureAuthenticated, handler: PodcastsApi.AuthErrorHandler
 
   def current(conn, _) do

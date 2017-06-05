@@ -18,8 +18,8 @@ defmodule PodcastsApi.ParseFeed do
         end
       end
     )
-    IO.puts "episodes with ids: "
-    IO.inspect episodes_with_ids
+    # IO.puts "episodes with ids: "
+    # IO.inspect episodes_with_ids
     Map.put(parsed_feed, :episodes, episodes_with_ids)
   end
 

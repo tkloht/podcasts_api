@@ -19,8 +19,6 @@ defmodule PodcastsApi.SessionController do
       |> Repo.one!
       cond do
         checkpw(password, user.password_hash) ->
-          Logger.info "User" <> username <> "logged in"
-
           # encode jwt
           { :ok, jwt, _} = Guardian.encode_and_sign(user, :token)
 
@@ -29,7 +27,6 @@ defmodule PodcastsApi.SessionController do
 
         # login unsuccessful
         true ->
-          Logger.warn "User " <> username <> " failed to login"
           conn
           |> put_status(401)
           |> render(PodcastsApi.ErrorView, "401.json")
@@ -37,7 +34,6 @@ defmodule PodcastsApi.SessionController do
     rescue
       e ->
         IO.inspect e # print error for debugging
-        Logger.error "unexpected error while trying to login user " <> username
 
         conn
         |> put_status(401)

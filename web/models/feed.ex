@@ -14,8 +14,8 @@ defmodule PodcastsApi.Feed do
     timestamps()
   end
 
-@required_fields ~w(source_url title description link image_url)
-@optional_fields ~w()
+  @required_fields ~w(source_url title description link image_url)
+  @optional_fields ~w()
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

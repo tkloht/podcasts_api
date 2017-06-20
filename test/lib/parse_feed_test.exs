@@ -5,6 +5,12 @@ defmodule PodcastsApi.ParseFeedTest do
   alias PodcastsApi.Feed
   import PodcastsApi.ParseFeed
 
+  def get_fixture(fixture_name) do
+    app_root = Application.app_dir(:podcasts_api, "priv")
+    path = Path.relative_to_cwd(Path.join([app_root, "fixtures", fixture_name]))
+    File.read! path
+  end
+
   describe "parseFeed" do
     test "parses valid feed head correctly" do
       source_url = "test"

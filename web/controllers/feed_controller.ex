@@ -48,8 +48,8 @@ defmodule PodcastsApi.FeedController do
             opts: [include: "episodes"]
           )
       {:error, changeset} ->
-        IO.puts(">>>>> unable to insert changeset: ")
-        IO.inspect(changeset )
+        # IO.puts(">>>>> unable to insert changeset: ")
+        # IO.inspect(changeset )
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
@@ -57,13 +57,13 @@ defmodule PodcastsApi.FeedController do
   end
 
   def insert_feed(conn, parsed_feed) do
-    IO.puts "in insert feed..."
-    IO.inspect parsed_feed
+    # IO.puts "in insert feed..."
+    # IO.inspect parsed_feed
     changeset = Feed.changeset %Feed{}, parsed_feed
     case Repo.insert changeset do
       {:ok, feed} ->
-        IO.puts "inserted feed..."
-        IO.inspect feed
+        # IO.puts "inserted feed..."
+        # IO.inspect feed
         conn
         |> put_status(:created)
         |> render(
@@ -74,7 +74,7 @@ defmodule PodcastsApi.FeedController do
           )
       {:error, changeset} ->
         IO.puts(">>>>> unable to insert changeset: " )
-        IO.inspect(changeset )
+        # IO.inspect(changeset )
         conn
         |> put_status(:unprocessable_entity)
         |> render(PodcastsApi.ChangesetView, "error.json-api", changeset: changeset)
@@ -117,17 +117,20 @@ defmodule PodcastsApi.FeedController do
   }}) do
 
     IO.puts("in update... ")
-    case handleUdpateFeed(conn, id) do
-      {:ok, feed} ->
-        conn
-        |> put_status(:updated)
-        |> render(
-            PodcastsApi.FeedView,
-            "show.json-api",
-            data: feed,
-            opts: [include: "episodes"]
-          )
-    end
+    handleUdpateFeed(conn, id)
+    # case handleUdpateFeed(conn, id) do
+    #   {:ok, feed} ->
+    #     IO.puts "render ok:"
+    #     conn
+    #     |> put_status(:updated)
+    #     |> render(
+    #         PodcastsApi.FeedView,
+    #         "show.json-api",
+    #         data: feed,
+    #         opts: [include: "episodes"]
+    #       )
+    #   _ -> IO.puts "no clause matching here???"
+    # end
   end
 
   def handleUdpateFeed(conn, feed_id) do

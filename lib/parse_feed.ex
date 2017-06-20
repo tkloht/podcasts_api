@@ -49,8 +49,8 @@ defmodule PodcastsApi.ParseFeed do
               ]
           )
         |> Map.put(:source_url, source_url)
-        IO.puts "feed is parsed..."
-        IO.inspect(parsed)
+        # IO.puts "feed is parsed..."
+        # IO.inspect(parsed)
         {:ok, parsed }
       {:error, :no_xml} -> {:error, :no_xml}
       {:error, :no_feed} -> {:error, :no_feed}

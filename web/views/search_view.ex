@@ -15,8 +15,8 @@ defmodule PodcastsApi.SearchView do
 
   def render("index.json", %{data: data}) do
 
-    IO.puts("## in search view:")
-    IO.inspect(data)
+    # IO.puts("## in search view:")
+    # IO.inspect(data)
 
     # Poison.encode(data)
 

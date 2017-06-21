@@ -22,10 +22,36 @@ defmodule PodcastsApi.SearchController do
             # IO.puts("decoded search results: ")
             # IO.inspect(response)
 
-            conn
-            |> render("index.json", data: response)
-        end
+            %{"results" => results} = response
 
+            feedWithIds = Enum.map(results, fn(feed) ->
+              %{"feedUrl" => x} = feed
+              IO.puts "found a feed: " <> x
+              query = from f in "feeds",
+                      where: f.source_url == ^x,
+                      select: f.id
+
+              case Repo.all(query) do
+                [head | tail] ->
+                  IO.puts "feed is already in library: "
+                  IO.inspect head
+                  result = Map.put(feed, "feed_id", head)
+                  IO.inspect result
+                  result
+                  # result = %{feed | "feed_id" => head}
+                _ ->
+                  result = feed
+              end
+              # IO.puts "is feed already in library?"
+              # IO.inspect(result)
+              result
+            end)
+
+          responseWithIds = Map.put(response, "results", feedWithIds)
+
+          conn
+          |> render("index.json", data: responseWithIds)
+        end
 
       {:error, %HTTPoison.Error{reason: reason}} ->
         conn

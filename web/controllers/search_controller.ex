@@ -5,6 +5,8 @@ defmodule PodcastsApi.SearchController do
   import PodcastsApi.ParseFeed
   import URI
 
+  require Logger
+
   # returns id
   def insert_feed(parsed_feed) do
     # IO.puts "in insert feed..."
@@ -17,7 +19,8 @@ defmodule PodcastsApi.SearchController do
         %{:id => id} = feed
         id
       {:error, changeset} ->
-        IO.puts(">>>>> unable to insert changeset: " )
+        Logger.error "unable to insert changeset for feed: #{inspect changeset}"
+        # IO.puts(">>>>> unable to insert changeset: " )
         # IO.inspect(changeset )
         nil
     end 
@@ -57,12 +60,12 @@ defmodule PodcastsApi.SearchController do
 
               case Repo.all(query) do
                 [head | tail] ->
-                  IO.puts "feed is already in library: "
-                  IO.inspect head
+                  Logger.info "feed #{x} is already in library with id: #{head}"
                   Map.put(feed, "feed_id", head)
                   # result = %{feed | "feed_id" => head}
                 _ ->
-                  case HTTPoison.get(x, [], [ ssl: [{:versions, [:'tlsv1.2']}] ]) do
+                  Logger.info "feed #{x} is NOT in the database yet, try to add it"
+                  case HTTPoison.get(x, [], [ ssl: [{:versions, [:'tlsv1.2']}], follow_redirect: true ]) do
                     {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
                       case parseFeed(x, body) do
                         {:ok, parsed} -> Map.put(feed, "feed_id", insert_feed(parsed))

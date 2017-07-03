@@ -40,6 +40,7 @@ defmodule PodcastsApi.Mixfile do
      {:gettext, "~> 0.11"},
      {:cors_plug, "~> 1.1"},
      {:guardian, "~> 0.14"},
+     {:gen_stage, "~> 0.12"},
      {:comeonin, "~> 3.0"},
      {:mix_test_watch, "~> 0.2", only: :dev},
      {:ja_serializer, "~> 0.11.2"},

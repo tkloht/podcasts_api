@@ -19,8 +19,8 @@ defmodule PodcastsApi.Episode do
     timestamps
   end
 
-  @required_fields ~w(title link pubDate feed_id)
-  @optional_fields ~w(enclosure guid duration description itunes_summary content_encoded)
+  @required_fields ~w(title pubDate feed_id)
+  @optional_fields ~w(enclosure guid duration description itunes_summary content_encoded link)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -28,7 +28,7 @@ defmodule PodcastsApi.Episode do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required([:title, :link, :pubDate])
+    |> validate_required([:title, :pubDate])
   end
 
 end

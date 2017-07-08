@@ -2,15 +2,13 @@ defmodule PodcastsApi.LoadFeedStage do
   use GenStage
   import Logger
 
-  @max_demand 100
-
   def start_link(initial \\ nil) do
-    GenStage.start_link(__MODULE__, initial)
+    GenStage.start_link(__MODULE__, initial, name: __MODULE__)
   end
 
 
   def init(state) do
-    {:consumer, state, subscribe_to: [{PodcastsApi.CrawlForUpdates, max_demand: 10, min_demand: 5}]}
+    {:producer_consumer, state, subscribe_to: [{PodcastsApi.CrawlForUpdates, max_demand: 100, min_demand: 5}]}
   end
 
   def handle_cast({:push, feed_urls}, state) do
@@ -27,7 +25,7 @@ defmodule PodcastsApi.LoadFeedStage do
     # Do nothing. Events will be dispatched as-is.
     # Loggger.info "events in consumer:" <> events
     # Logger.info "got new events: #{inspect events}"
-    Enum.map(events, fn feed_url -> 
+    loaded_feeds = Enum.map(events, fn feed_url -> 
       Logger.info "getting feed at #{feed_url}"
       case HTTPoison.get(feed_url, [], [ ssl: [{:versions, [:'tlsv1.2']}] ]) do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -38,6 +36,16 @@ defmodule PodcastsApi.LoadFeedStage do
           {feed_url, nil}
       end
     end)
-    {:noreply, [], state}
+    {:noreply, loaded_feeds, state}
   end
+
+  # def handle_demand(demand, state) do
+  #   Logger.info "in handle_demand (load-feed stage), demand:#{demand}"#, state: " <> inspect state
+  #   # events = Enum.to_list(state..state + demand - 1)
+  #   {pulled, remaining} = Enum.split(state, demand)
+  #   {:noreply, pulled, remaining}
+  #   # Do nothing. Events will be dispatched as-is.
+  #   # {:noreply, events, state}
+  # end
+
 end

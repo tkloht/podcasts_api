@@ -49,6 +49,7 @@ defmodule PodcastsApi.Mixfile do
      {:timex, "~> 3.0"},
      {:timex_ecto, "~> 3.0"},
      {:exvcr, "~> 0.8", only: :test},
+     {:flow, "~> 0.11"},
      {:cowboy, "~> 1.0"}]
   end
 

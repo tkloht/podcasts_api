@@ -15,12 +15,9 @@ defmodule PodcastsApi do
       # Start your own worker by calling: PodcastsApi.Worker.start_link(arg1, arg2, arg3)
       # 
       worker(PodcastsApi.CrawlForUpdates, []),
-      worker(PodcastsApi.LoadFeedStage, [], id: 1),
-      worker(PodcastsApi.LoadFeedStage, [], id: 2),
-      worker(PodcastsApi.LoadFeedStage, [], id: 3),
-      worker(PodcastsApi.LoadFeedStage, [], id: 4),
-      worker(PodcastsApi.LoadFeedStage, [], id: 5),
-      worker(PodcastsApi.LoadFeedStage, [], id: 6),
+      worker(PodcastsApi.LoadFeedStage, []),
+      worker(PodcastsApi.ParseFeedStage, []),
+      worker(PodcastsApi.InsertFeedStage, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

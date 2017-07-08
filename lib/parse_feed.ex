@@ -1,5 +1,6 @@
 defmodule PodcastsApi.ParseFeed do
   import SweetXml
+  import Logger
 
   def insert_feed_id(parsed_feed, feed_id) do
     Map.put(parsed_feed, :id, feed_id)
@@ -24,7 +25,7 @@ defmodule PodcastsApi.ParseFeed do
   end
 
   def parseFeed(source_url, feedBody) do
-    IO.puts "in parseFeed..."
+    Logger.info "parsing feed for url: #{source_url}"
     case is_feed feedBody do
       {:ok} ->
         parsed = feedBody
@@ -49,8 +50,7 @@ defmodule PodcastsApi.ParseFeed do
               ]
           )
         |> Map.put(:source_url, source_url)
-        # IO.puts "feed is parsed..."
-        # IO.inspect(parsed)
+        Logger.info "finished parsing feed for url: #{source_url}"
         {:ok, parsed }
       {:error, :no_xml} -> {:error, :no_xml}
       {:error, :no_feed} -> {:error, :no_feed}

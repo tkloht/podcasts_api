@@ -12,17 +12,13 @@ defmodule PodcastsApi.LoadFeedStage do
   end
 
   def handle_cast({:push, feed_urls}, state) do
-    # query = from f in PodcastsApi.Feed,
-    #      select: f.source_url
-    # feed_urls = Repo.all(query)
-    # Logger.info "found feed urls: " <> inspect feed_urls
-    # Dispatch the feed_urls as events.
-    # These will be buffered if there are no consumers ready.
     {:noreply, feed_urls, state}
   end
   
+  # events is an array of feed-urls
+  # load the feed at the given url for each
+  # emit array of tupels with feed-url and feed-body  
   def handle_events(events, _from, state) do
-    # Do nothing. Events will be dispatched as-is.
     # Loggger.info "events in consumer:" <> events
     # Logger.info "got new events: #{inspect events}"
     loaded_feeds = Enum.map(events, fn feed_url -> 
@@ -38,14 +34,5 @@ defmodule PodcastsApi.LoadFeedStage do
     end)
     {:noreply, loaded_feeds, state}
   end
-
-  # def handle_demand(demand, state) do
-  #   Logger.info "in handle_demand (load-feed stage), demand:#{demand}"#, state: " <> inspect state
-  #   # events = Enum.to_list(state..state + demand - 1)
-  #   {pulled, remaining} = Enum.split(state, demand)
-  #   {:noreply, pulled, remaining}
-  #   # Do nothing. Events will be dispatched as-is.
-  #   # {:noreply, events, state}
-  # end
 
 end

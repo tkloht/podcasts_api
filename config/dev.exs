@@ -27,5 +27,5 @@ config :podcasts_api, PodcastsApi.Repo,
   password: "postgres",
   database: "podcasts_api_dev",
   hostname: "localhost",
-  pool_size: 10,
-  loggers: [{Ecto.LogEntry, :log, [:info]}]
+  pool_size: 10
+  # loggers: [{Ecto.LogEntry, :log, [:info]}]

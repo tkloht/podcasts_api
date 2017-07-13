@@ -17,32 +17,34 @@ defmodule PodcastsApi.LoadFeedStage do
   # load one feed for given feed_url
   # emit tuple  of feed_url and feed_body
   # feed body is nil if could not be loaded
-  def get_feed(feed_url) do
+  def get_feed(event) do
+    %{source_url: feed_url} = event
     Logger.info "load feed for url: #{feed_url}"
-    case HTTPoison.get(feed_url, [], [ ssl: [{:versions, [:'tlsv1.2']}], follow_redirect: true ]) do
+    body = case HTTPoison.get(feed_url, [], [ ssl: [{:versions, [:'tlsv1.2']}], follow_redirect: true ]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         Logger.info "received a feed for url: #{feed_url}"
-        {feed_url, body}
+        body
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         Logger.warn "feed not found for url: #{feed_url}"
-        {feed_url, nil}
+        nil
       {:error, _error} ->
         Logger.error "unable to load feed at #{feed_url}"
-        {feed_url, nil}
+        nil
     end
+    Map.put(event, :feed_body, body)
   end 
 
   def handle_events(events, _from, state) do
     Logger.info "load feeds for events: #{inspect events}"
     # tasks = Enum.map(events,  Task.async(&get_feed/1))
     results = events
-      |> Enum.map(fn feed_url -> Task.async(fn -> get_feed(feed_url) end) end)
+      |> Enum.map(fn event -> Task.async(fn -> get_feed(event) end) end)
       |> collect_results
-      |> Enum.filter(fn {url, body} -> body != nil end)
+      |> Enum.filter(fn %{feed_body: body} -> body != nil end)
 
     Logger.info "finished loading #{length(results)} feeds"
 
-    missing_feeds = Enum.filter(events, fn x -> Enum.any?(results, fn {url, body} -> x == url end) end)
+    missing_feeds = Enum.filter(events, fn x -> Enum.any?(results, fn %{source_url: url} -> x == url end) end)
     Logger.error "missing feeds: #{inspect missing_feeds}"
     {:noreply, results, state}
   end

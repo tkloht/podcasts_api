@@ -37,11 +37,13 @@ defmodule PodcastsApi.InsertFeedStage do
         |> insert_feed_id(id)
         |> insert_episode_ids(get_episodes_by_feed_id(id))
 
-      feed = Repo.get!(Feed, id) |> Repo.preload(:episodes)
+      feed = Repo.get!(Feed, id)
+        |> Repo.preload(:episodes)
+        |> Repo.preload(:subscriptions)
       changeset = Feed.changeset(feed, parsed_feed)
 
       # changeset = Feed.changeset %Feed{}, parsed_feed
-      case Repo.insert changeset do
+      case Repo.update changeset do
         {:ok, feed} ->
           Logger.info "inserted feed: #{Map.get(feed, :title, :title_not_found)}"
         {:error, changeset} ->

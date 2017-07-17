@@ -38,6 +38,12 @@ config :guardian, Guardian,
   secret_key: System.get_env("GUARDIAN_SECRET") || "C9Dk5YJAY31GKL9uW2U6K3CFqxlqVOXUKDhCNxT/y4+W5BKGjCC4UEv7NRAwweMp",
   serializer: PodcastsApi.GuardianSerializer
 
+config :podcasts_api, PodcastsApi.Scheduler,
+  jobs: [
+    # every minute
+    {"* * * * *", {PodcastsApi.Scheduler, :enqueue_feed_update, []}},
+  ]
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

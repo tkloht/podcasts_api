@@ -31,7 +31,10 @@ defmodule PodcastsApi.LoadFeedStage do
         Logger.error "unable to load feed at #{feed_url}"
         nil
     end
-    Map.put(event, :feed_body, body)
+    hash = :crypto.hash(:md5 , body) |> Base.encode16()
+    event
+     |> Map.put(:feed_body, body)
+     |> Map.put(:body_hashed, hash)
   end 
 
   def handle_events(events, _from, state) do

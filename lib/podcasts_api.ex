@@ -18,6 +18,8 @@ defmodule PodcastsApi do
       worker(PodcastsApi.LoadFeedStage, []),
       worker(PodcastsApi.ParseFeedStage, []),
       worker(PodcastsApi.InsertFeedStage, []),
+
+      worker(PodcastsApi.Scheduler, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

@@ -1,9 +1,6 @@
 defmodule PodcastsApi.CrawlForUpdates do
   use GenStage
   import Logger
-  alias PodcastsApi.Repo
-  import Ecto
-  import Ecto.Query
 
   def start_link(initial \\ nil) do
     GenStage.start_link(__MODULE__, initial, name: __MODULE__)
@@ -11,14 +8,13 @@ defmodule PodcastsApi.CrawlForUpdates do
 
 
   def init(_args) do
-    query = from f in PodcastsApi.Feed,
-      select: %{id: f.id, source_url: f.source_url},
-      order_by: f.updated_at
-    feed_urls = Repo.all(query)
-    # feed_urls = Repo.all(PodcastsApi.Feed)
-    # Logger.info "found feed urls: " <> inspect feed_urls
-
-    {:producer, feed_urls}
+    # query = from f in PodcastsApi.Feed,
+    #   select: %{id: f.id, source_url: f.source_url},
+    #   order_by: f.updated_at
+    # feed_urls = Repo.all(query)
+    
+    # {:producer, feed_urls}
+    {:producer, []}
   end
 
   def handle_cast({:push, feed_urls}, state) do
@@ -28,11 +24,12 @@ defmodule PodcastsApi.CrawlForUpdates do
     # Logger.info "found feed urls: " <> inspect feed_urls
     # Dispatch the feed_urls as events.
     # These will be buffered if there are no consumers ready.
+    Logger.info "in handle cast... state: #{inspect state} new urls: #{inspect feed_urls}"
     {:noreply, feed_urls, state}
   end
   
   def handle_demand(demand, state) do
-    Logger.info "in handle_demand, demand:#{demand}"#, state: " <> inspect state
+    Logger.info "in handle_demand, demand:#{demand} state: #{inspect(state)}"#, state: " <> inspect state
     # events = Enum.to_list(state..state + demand - 1)
     {pulled, remaining} = Enum.split(state, demand)
     {:noreply, pulled, remaining}

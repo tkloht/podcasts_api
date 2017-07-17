@@ -48,6 +48,7 @@ defmodule PodcastsApi.Mixfile do
      {:sweet_xml, "~> 0.6.4"},
      {:timex, "~> 3.0"},
      {:timex_ecto, "~> 3.0"},
+     {:quantum, ">= 2.0.0-beta.2"},
      {:exvcr, "~> 0.8", only: :test},
      {:flow, "~> 0.11"},
      {:cowboy, "~> 1.0"}]

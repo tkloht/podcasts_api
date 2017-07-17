@@ -30,7 +30,7 @@ defmodule PodcastsApi.FeedController do
   def update_feed(conn, parsed_feed, id) do
     IO.puts "in update feed..."
     # IO.inspect parsed_feed
-    feed_with_id = insert_feed_id(parsed_feed, id)
+    insert_feed_id(parsed_feed, id)
     parsed_feed = parsed_feed
       |> insert_feed_id(id)
       |> insert_episode_ids(get_episodes_by_feed_id(id))

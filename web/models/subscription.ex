@@ -6,7 +6,7 @@ defmodule PodcastsApi.Subscription do
     belongs_to :user, PodcastsApi.User
     belongs_to :feed, PodcastsApi.Feed
 
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(user_id feed_id)

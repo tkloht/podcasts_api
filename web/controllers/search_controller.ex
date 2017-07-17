@@ -26,7 +26,7 @@ defmodule PodcastsApi.SearchController do
     end 
   end
 
-  def get(conn, %{"term" => term} = params) do
+  def get(conn, %{"term" => term}) do
 
     # term = "accidental"
     # 
@@ -59,7 +59,7 @@ defmodule PodcastsApi.SearchController do
                       select: f.id
 
               case Repo.all(query) do
-                [head | tail] ->
+                [head | _tail] ->
                   Logger.info "feed #{x} is already in library with id: #{head}"
                   Map.put(feed, "feed_id", head)
                   # result = %{feed | "feed_id" => head}
@@ -72,7 +72,6 @@ defmodule PodcastsApi.SearchController do
                         _ -> feed
                       end
                     _ -> feed
-                   feed
                 end
               end
             end)

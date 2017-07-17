@@ -16,7 +16,7 @@ defmodule PodcastsApi.Episode do
     
     belongs_to :feed, PodcastsApi.Feed
 
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(title pubDate feed_id)

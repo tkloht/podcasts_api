@@ -14,6 +14,13 @@ defmodule PodcastsApi.LoadFeedStage do
     {:noreply, feed_urls, state}
   end
 
+  # this suppresses "unexpected message :DOWN..." errors
+  # TODO: is this ok, or have i screwed up and need to fix?
+  def handle_info({:DOWN, _ref, :process, _pid, :normal}, state) do
+    # Logger.debug "received unexpected down message"
+    {:noreply, [], state}
+  end
+
   # load one feed for given feed_url
   # emit tuple  of feed_url and feed_body
   # feed body is nil if could not be loaded

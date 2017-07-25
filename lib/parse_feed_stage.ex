@@ -32,9 +32,12 @@ defmodule PodcastsApi.ParseFeedStage do
     results = events
       |> Flow.from_enumerable(max_demand: 20)
       |> Flow.map(fn event ->
-          %{source_url: feed_url, feed_body: feed_body} = event
-          {:ok, parsed} = PodcastsApi.ParseFeed.parseFeed(feed_url, feed_body)
-          Map.put(event, :body_parsed, parsed)
+          case event do
+            %{source_url: feed_url, feed_body: feed_body} ->
+              {:ok, parsed} = PodcastsApi.ParseFeed.parseFeed(feed_url, feed_body)
+              Map.put(event, :body_parsed, parsed)
+            nil -> nil              
+          end
         end)
       |> Enum.to_list()
 

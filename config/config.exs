@@ -41,7 +41,7 @@ config :guardian, Guardian,
 config :podcasts_api, PodcastsApi.Scheduler,
   jobs: [
     # every minute
-    {"* * * * *", {PodcastsApi.Scheduler, :enqueue_feed_update, []}},
+    # {"* * * * *", {PodcastsApi.Scheduler, :enqueue_feed_update, []}},
   ]
 
 

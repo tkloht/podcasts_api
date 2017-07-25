@@ -7,6 +7,7 @@ defmodule PodcastsApi.Feed do
     field :description, :string
     field :link, :string
     field :image_url, :string
+    field :hash, :string
 
     has_many :episodes, PodcastsApi.Episode, on_replace: :delete
     has_many :subscriptions, PodcastsApi.Subscription
@@ -14,7 +15,7 @@ defmodule PodcastsApi.Feed do
     timestamps()
   end
 
-  @required_fields ~w(source_url title description link image_url)
+  @required_fields ~w(source_url title description link image_url hash)
   @optional_fields ~w()
 
   @doc """

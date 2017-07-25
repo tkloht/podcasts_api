@@ -1,6 +1,6 @@
 defmodule PodcastsApi.LoadFeedStage do
   use GenStage
-  import Logger
+  require Logger
 
   def start_link(initial \\ nil) do
     GenStage.start_link(__MODULE__, initial, name: __MODULE__)
@@ -31,14 +31,20 @@ defmodule PodcastsApi.LoadFeedStage do
         Logger.error "unable to load feed at #{feed_url}"
         nil
     end
-    hash = :crypto.hash(:md5 , body) |> Base.encode16()
+
+    hash = if body != nil do
+      :crypto.hash(:md5 , body) |> Base.encode16()
+    else
+      nil
+    end
+      
     event
      |> Map.put(:feed_body, body)
      |> Map.put(:body_hashed, hash)
   end 
 
   def handle_events(events, _from, state) do
-    Logger.info "load feeds for events: #{inspect events}"
+    Logger.info "load feeds for #{length events} events"
     # tasks = Enum.map(events,  Task.async(&get_feed/1))
     results = events
       |> Enum.map(fn event -> Task.async(fn -> get_feed(event) end) end)

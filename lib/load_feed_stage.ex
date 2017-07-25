@@ -49,6 +49,7 @@ defmodule PodcastsApi.LoadFeedStage do
     results = events
       |> Enum.map(fn event -> Task.async(fn -> get_feed(event) end) end)
       |> collect_results
+      |> Enum.filter(fn x -> x != nil end)
       |> Enum.filter(fn %{feed_body: body} -> body != nil end)
 
     Logger.info "finished loading #{length(results)} feeds"

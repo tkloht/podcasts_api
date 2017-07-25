@@ -64,8 +64,9 @@ defmodule PodcastsApi.LoadFeedStage do
   end
 
   defp collect_results(tasks) do
-    timeout_ref = make_ref
-    timer = Process.send_after(self, {:timeout, timeout_ref}, 30000)
+    Logger.info "collect results for tasks: #{length tasks}"
+    timeout_ref = make_ref()
+    timer = Process.send_after(self(), {:timeout, timeout_ref}, 30000)
     try do
       collect_results(tasks, [], timeout_ref)
     after
@@ -78,7 +79,7 @@ defmodule PodcastsApi.LoadFeedStage do
   end
 
   def collect_results([], aggregator, _) do
-    Logger.info "collected all tasks: #{inspect aggregator}"
+    Logger.info "collected all tasks: #{length aggregator}"
     aggregator
   end
 
@@ -89,19 +90,14 @@ defmodule PodcastsApi.LoadFeedStage do
         Logger.info ">>> received timeout"
         aggregator
 
-      msg ->
-        # Logger.info "received message: #{inspect msg}"
-        case Task.find(tasks, msg) do
-          {result, task} ->
-            collect_results(
-              List.delete(tasks, task),
-              [result | aggregator],
-              timeout_ref
-            )
-
-          nil ->
-            collect_results(tasks, aggregator, timeout_ref)
-        end
+      {ref, msg} ->
+        # Logger.info "received message: #{inspect ref} #{inspect tasks}"
+        collect_results(
+          Enum.filter(tasks, fn %Task{ref: delete_ref} -> ref != delete_ref end),
+          [msg | aggregator],
+          timeout_ref
+        )
+          
     end
   end
 

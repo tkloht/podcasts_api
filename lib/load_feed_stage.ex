@@ -54,8 +54,12 @@ defmodule PodcastsApi.LoadFeedStage do
 
     Logger.info "finished loading #{length(results)} feeds"
 
-    missing_feeds = Enum.filter(events, fn x -> Enum.any?(results, fn %{source_url: url} -> x == url end) end)
-    Logger.error "missing feeds: #{inspect missing_feeds}"
+    expected = Enum.map(events,fn %{source_url: source_url} -> source_url end)
+    actual = Enum.map(results,fn %{source_url: source_url} -> source_url end)
+    missing = expected -- actual
+    if missing != [] do
+      Logger.error "#{length missing} missing feeds: #{inspect missing}"
+    end
     {:noreply, results, state}
   end
 

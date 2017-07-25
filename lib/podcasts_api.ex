@@ -16,6 +16,7 @@ defmodule PodcastsApi do
       # 
       worker(PodcastsApi.CrawlForUpdates, []),
       worker(PodcastsApi.LoadFeedStage, []),
+      worker(PodcastsApi.FilterUpdatedStage, []),
       worker(PodcastsApi.ParseFeedStage, []),
       worker(PodcastsApi.InsertFeedStage, []),
 

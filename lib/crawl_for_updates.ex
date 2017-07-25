@@ -13,7 +13,11 @@ defmodule PodcastsApi.CrawlForUpdates do
 
   def init(_args) do
     query = from f in PodcastsApi.Feed,
-      select: %{id: f.id, source_url: f.source_url},
+      select: %{
+        id: f.id,
+        source_url: f.source_url,
+        current_hash: f.hash,
+      },
       order_by: f.updated_at
     feed_urls = Repo.all(query)
     

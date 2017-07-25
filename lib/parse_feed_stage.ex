@@ -8,7 +8,7 @@ defmodule PodcastsApi.ParseFeedStage do
 
   def init(state) do
     # {:consumer, state}
-    {:producer_consumer, state, subscribe_to: [{PodcastsApi.LoadFeedStage, max_demand: 100, min_demand: 5}]}
+    {:producer_consumer, state, subscribe_to: [{PodcastsApi.FilterUpdatedStage, max_demand: 100, min_demand: 5}]}
   end
 
   def handle_cast({:push, feeds}, state) do

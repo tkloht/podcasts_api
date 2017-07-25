@@ -31,11 +31,16 @@ defmodule PodcastsApi.InsertFeedStage do
     # parsed = Enum.map(events, &PodcastsApi.ParseFeed.parseFeed/2)
     Enum.each(events, fn event ->
 
-      %{id: id, body_parsed: parsed_feed} = event
+      %{
+        id: id,
+        body_parsed: parsed_feed,
+        body_hashed: body_hashed,
+      } = event
 
       parsed_feed = parsed_feed
         |> insert_feed_id(id)
         |> insert_episode_ids(get_episodes_by_feed_id(id))
+        |> Map.put(:hash, body_hashed)
 
       feed = Repo.get!(Feed, id)
         |> Repo.preload(:episodes)
@@ -45,7 +50,7 @@ defmodule PodcastsApi.InsertFeedStage do
       # changeset = Feed.changeset %Feed{}, parsed_feed
       case Repo.update changeset do
         {:ok, feed} ->
-          Logger.info "inserted feed: #{Map.get(feed, :title, :title_not_found)}"
+          Logger.info "inserted feed: #{Map.get(feed, :title, :title_not_found)} #{body_hashed}"
         {:error, changeset} ->
           Logger.info "unable to insert changeset for feed: #{inspect changeset}"
       end 

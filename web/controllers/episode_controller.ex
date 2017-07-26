@@ -9,6 +9,8 @@ defmodule PodcastsApi.EpisodeController do
     |> Enum.reduce(PodcastsApi.Episode, fn
       {"feed", v}, query -> 
         from q in query, or_where: q.feed_id in ^String.split(v, ",")
+      {"id", v}, query -> 
+        from q in query, or_where: q.id in ^String.split(v, ",")
       {_key, _value}, query -> query # unsupported key for filter -> do nothing
     end)
     |> Repo.paginate(params)

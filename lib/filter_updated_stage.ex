@@ -1,7 +1,7 @@
 defmodule PodcastsApi.FilterUpdatedStage do
   use GenStage
-  import Logger
-  import Flow
+  require Logger
+
   def start_link(initial \\ nil) do
     GenStage.start_link(__MODULE__, initial, name: __MODULE__)
   end

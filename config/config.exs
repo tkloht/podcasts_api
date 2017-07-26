@@ -7,7 +7,9 @@ use Mix.Config
 
 # General application configuration
 config :podcasts_api,
-  ecto_repos: [PodcastsApi.Repo]
+  ecto_repos: [PodcastsApi.Repo],
+  feed_update_interval: 60, #in minutes
+  update_on_startup: false
 
 # Configures the endpoint
 config :podcasts_api, PodcastsApi.Endpoint,

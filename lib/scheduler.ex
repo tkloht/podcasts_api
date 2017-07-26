@@ -3,7 +3,6 @@ defmodule PodcastsApi.Scheduler do
   require Logger
 
   alias PodcastsApi.Repo
-  import Ecto
   import Ecto.Query
 
   def enqueue_feed_update() do

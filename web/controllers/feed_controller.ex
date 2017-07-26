@@ -8,8 +8,8 @@ defmodule PodcastsApi.FeedController do
 
   require Logger
 
-  def index(conn, _params) do
-    feeds = Repo.all(PodcastsApi.Feed)
+  def index(conn, params) do
+    feeds = Repo.paginate(PodcastsApi.Feed, params)
     conn
     |> render("index.json-api", data: feeds)
   end

@@ -4,7 +4,7 @@ defmodule PodcastsApi.FeedController do
   import PodcastsApi.ParseFeed
 
   alias PodcastsApi.Feed
-  plug Guardian.Plug.EnsureAuthenticated, handler: PodcastsApi.AuthErrorHandler
+  # plug Guardian.Plug.EnsureAuthenticated, handler: PodcastsApi.AuthErrorHandler
 
   require Logger
 

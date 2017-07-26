@@ -1,6 +1,8 @@
 defmodule PodcastsApi.Episode do
   use PodcastsApi.Web, :model
 
+  @timestamps_opts [type: :utc_datetime]
+
   schema "episodes" do
     field :title, :string
     field :subtitle, :string

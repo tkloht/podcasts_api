@@ -1,6 +1,8 @@
 defmodule PodcastsApi.Feed do
   use PodcastsApi.Web, :model
 
+  @timestamps_opts [type: :utc_datetime]
+
   schema "feeds" do
     field :source_url, :string
     field :title, :string

@@ -27,6 +27,7 @@ defmodule PodcastsApi.Router do
     get "/users", UserController, :index
     post "/update_feed", FeedController, :update
     get "/search", SearchController, :get
+    resources "/subscriptions", SubscriptionController, except: [:new, :edit]
 
   end
 

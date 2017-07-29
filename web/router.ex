@@ -28,6 +28,7 @@ defmodule PodcastsApi.Router do
     post "/update_feed", FeedController, :update
     get "/search", SearchController, :get
     resources "/subscriptions", SubscriptionController, except: [:new, :edit]
+    resources "/playlists", PlaylistController, except: [:new, :edit]
 
   end
 

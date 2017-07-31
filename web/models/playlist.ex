@@ -5,6 +5,8 @@ defmodule PodcastsApi.Playlist do
     field :title, :string
     belongs_to :user, PodcastsApi.User
 
+    has_many :playlist_items, PodcastsApi.PlaylistItem
+
     timestamps()
   end
 

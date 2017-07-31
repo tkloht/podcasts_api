@@ -29,6 +29,7 @@ defmodule PodcastsApi.Router do
     get "/search", SearchController, :get
     resources "/subscriptions", SubscriptionController, except: [:new, :edit]
     resources "/playlists", PlaylistController, except: [:new, :edit]
+    resources "/playlist_items", PlaylistItemController, except: [:new, :edit]
 
   end
 

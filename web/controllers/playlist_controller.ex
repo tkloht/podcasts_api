@@ -8,7 +8,15 @@ defmodule PodcastsApi.PlaylistController do
 
   def index(conn, _params) do
     playlists = Repo.all(Playlist)
-    render(conn, "index.json-api", data: playlists)
+    |> Repo.preload(:playlist_items)
+
+
+    render(
+      conn,
+      "index.json-api",
+      data: playlists,
+      opts: [include: "playlist_items"],
+    )
   end
 
   def create(conn, %{"data" => data = %{"type" => "playlist", "attributes" => _playlist_params}}) do
@@ -38,7 +46,14 @@ defmodule PodcastsApi.PlaylistController do
 
   def show(conn, %{"id" => id}) do
     playlist = Repo.get!(Playlist, id)
-    render(conn, "show.json-api", data: playlist)
+    |> Repo.preload(:playlist_items)
+
+    render(
+      conn,
+      "show.json-api",
+      data: playlist,
+      opts: [include: "playlist_items"],
+    )
   end
 
   def update(conn, %{"id" => id, "data" => data = %{"type" => "playlist", "attributes" => _playlist_params}}) do

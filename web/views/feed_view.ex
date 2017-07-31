@@ -3,6 +3,7 @@ defmodule PodcastsApi.FeedView do
   use JaSerializer.PhoenixView
 
   attributes [
+    :id,
     :source_url,
     :title,
     :description,
